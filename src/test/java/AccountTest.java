@@ -76,12 +76,44 @@ class AccountTest {
 
      @Test
      void testWithdraw() {
-         Account myTestAccount = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
-         myTestAccount.setBalance(new BigDecimal(100));
-         assertEquals(BigDecimal.ZERO, myTestAccount.withdraw(new BigDecimal(100)));
+         /*
+          * TestCase 01 — Withdraw within available balance (no overdraft)
+          * Desired behaviour: Withdrawing 10 from balance of 100 (with max_overdrawn 0) should success and set new balance to 90.
+          * Observed skeleton behaviour: withdraw method returns (balance - requestedAmount), but does not update the internal balance.
+          * Purpose of this testcase: A basic test to check that verify basic subtraction and state update, without overdraft.
+          */
+         Account myTestAccount1 = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
+         myTestAccount1.setBalance(new BigDecimal(100));
+         BigDecimal returnedBalance1 = myTestAccount1.withdraw(new BigDecimal(10));
+         assertEquals(new BigDecimal(90), returnedBalance1);
+         assertEquals(new BigDecimal(90), myTestAccount1.getBalance());
 
-         myTestAccount.setBalance(new BigDecimal(100));
-         assertEquals(new BigDecimal(40), myTestAccount.withdraw(new BigDecimal(60)));
+         /*
+          * TestCase 02 — Withdraw exactly to overdraft amount
+          * Desired: balance 100, max_overdrawn 100, withdraw 200 should success and new balance should -100.
+          * Skeleton: no overdraft limitations and does not update the internal balance.
+          * Reason: Boundary check for withdraw amount (-max_overdrawn).
+          */
+         Account myTestAccount2 = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
+         myTestAccount2.setBalance(new BigDecimal(100));
+         myTestAccount2.setMaxOverdrawn(new BigDecimal(100));
+         BigDecimal returnedBalance2 = myTestAccount2.withdraw(new BigDecimal(200));
+         assertEquals(new BigDecimal(-100), returnedBalance2);
+         assertEquals(new BigDecimal(-100), myTestAccount2.getBalance());
+
+
+         /*
+          * TestCase 03 — Withdraw more than overdraft amount(should be rejected)
+          * Desired: balance 100, max_overdrawn 100, withdraw 201 should reject and balance stays 100. withdraw method returns unchanged balance.
+          * Skeleton: returns -201 (illegal) and still not updating state.
+          * Reason: to avoid minimal balance violation.
+          */
+         Account myTestAccount3 = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
+         myTestAccount3.setBalance(new BigDecimal(100));
+         myTestAccount3.setMaxOverdrawn(new BigDecimal(100));
+         BigDecimal returnedBalance3 = myTestAccount3.withdraw(new BigDecimal(201));
+         assertEquals(new BigDecimal(100), returnedBalance3);
+         assertEquals(new BigDecimal(100), myTestAccount3.getBalance());
 
      }
 
