@@ -81,6 +81,7 @@ class AccountTest {
           * Desired behaviour: Withdrawing 10 from balance of 100 (with max_overdrawn 0) should success and set new balance to 90.
           * Observed skeleton behaviour: withdraw method returns (balance - requestedAmount), but does not update the internal balance.
           * Purpose of this testcase: A basic test to check that verify basic subtraction and state update, without overdraft.
+          * Fix: after the withdraw method, this.balance should update to the new balance
           */
          Account myTestAccount1 = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
          myTestAccount1.setBalance(new BigDecimal(100));
@@ -90,9 +91,10 @@ class AccountTest {
 
          /*
           * TestCase 02 — Withdraw exactly to overdraft amount
-          * Desired: balance 100, max_overdrawn 100, withdraw 200 should success and new balance should -100.
+          * Desired behaviour: balance 100, max_overdrawn 100, withdraw 200 should success and new balance should -100.
           * Skeleton: no overdraft limitations and does not update the internal balance.
           * Reason: Boundary check for withdraw amount (-max_overdrawn).
+          * Fix: if newBalance >= -max_overdrawn then this.balance set to the new balance
           */
          Account myTestAccount2 = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
          myTestAccount2.setBalance(new BigDecimal(100));
@@ -104,9 +106,10 @@ class AccountTest {
 
          /*
           * TestCase 03 — Withdraw more than overdraft amount(should be rejected)
-          * Desired: balance 100, max_overdrawn 100, withdraw 201 should reject and balance stays 100. withdraw method returns unchanged balance.
+          * Desired behaviour: balance 100, max_overdrawn 100, withdraw 201 should reject and balance stays 100. withdraw method returns unchanged balance.
           * Skeleton: returns -201 (illegal) and still not updating state.
           * Reason: to avoid minimal balance violation.
+          * Fix: If newBalance < -max_overdrawn, This withdraw should block and return current balance.
           */
          Account myTestAccount3 = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
          myTestAccount3.setBalance(new BigDecimal(100));

@@ -64,7 +64,18 @@ public class Account implements IAccount {
 
     @Override
     public BigDecimal withdraw(BigDecimal requestedAmount) {
-        return this.balance.subtract(requestedAmount);
+        // Check invalid inputs
+        if (requestedAmount == null || requestedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return this.balance;
+        }
+        BigDecimal newBalance = this.balance.subtract(requestedAmount);
+        // Check maximum overdraft amount: newBalance >= -max_overdrawn
+        if (newBalance.compareTo(this.max_overdrawn.negate()) >= 0) {
+            this.balance = newBalance;
+            return this.balance;
+        }
+        // else, it would exceed overdraft
+        return this.balance;
     }
 
     @Override
