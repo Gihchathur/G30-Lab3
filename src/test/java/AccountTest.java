@@ -74,10 +74,16 @@ class AccountTest {
         assertEquals(new BigDecimal(42), myTestAccount.getBalance());
     }
 
-    // @Test
-    // void testWithdraw() {
-    //     fail("Not yet imnplemented"); //TODO implement
-    // }
+     @Test
+     void testWithdraw() {
+         Account myTestAccount = new Account(BigDecimal.ZERO, "SEK", BigDecimal.ZERO);
+         myTestAccount.setBalance(new BigDecimal(100));
+         assertEquals(BigDecimal.ZERO, myTestAccount.withdraw(new BigDecimal(100)));
+
+         myTestAccount.setBalance(new BigDecimal(100));
+         assertEquals(new BigDecimal(40), myTestAccount.withdraw(new BigDecimal(60)));
+
+     }
 
     // @Test
     // void testDeposit() {
